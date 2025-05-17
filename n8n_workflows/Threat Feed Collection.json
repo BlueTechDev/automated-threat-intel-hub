@@ -1,0 +1,392 @@
+{
+  "name": "Threat Feed Collection",
+  "nodes": [
+    {
+      "parameters": {
+        "jsCode": "console.log($json);\n\nconst log = $json.message || \"\";\nconst ipRegex = /\\b(?:\\d{1,3}\\.){3}\\d{1,3}\\b/;\nconst match = log.match(ipRegex);\n\nif (!match) {\n  return [{\n    json: {\n      ip: \"No IP found\",\n      timestamp: new Date().toISOString(),\n      original_Log: log\n    }\n  }];\n}\n\nreturn [{\n  json: {\n    ip: match[0],\n    timestamp: new Date().toISOString(),\n    original_Log: log\n  }\n}];\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        440,
+        -100
+      ],
+      "id": "4c02d9c9-d6ef-4af0-9dbd-29dc0342d474",
+      "name": "Extract IP"
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "log-monitor",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        0,
+        0
+      ],
+      "id": "7f8514fc-bf19-432b-935e-e325d853ea5e",
+      "name": "Webhook",
+      "webhookId": "3c4c3479-23d8-4953-9db8-6973917d12bb"
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "1hlN1f3yuDyc5j7VDzsQImhwNjSc_kqs-QU-OAMdnXEw",
+          "mode": "list",
+          "cachedResultName": "threat_log",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1hlN1f3yuDyc5j7VDzsQImhwNjSc_kqs-QU-OAMdnXEw/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "IP_Log_Monitor",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1hlN1f3yuDyc5j7VDzsQImhwNjSc_kqs-QU-OAMdnXEw/edit#gid=0"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "IP": "={{ $json.ip }}",
+            "Timestamp": "={{ $json.timestamp }}",
+            "Original_Log": "={{ $json.original_Log }}",
+            "Malicious_Score": "={{ $json.malicious_score }}",
+            "Country": "={{ $json.country }}",
+            "Org": "={{ $json.organization }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "IP",
+              "displayName": "IP",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Timestamp",
+              "displayName": "Timestamp",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Original_Log",
+              "displayName": "Original_Log",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Malicious_Score",
+              "displayName": "Malicious_Score",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Country",
+              "displayName": "Country",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Org",
+              "displayName": "Org",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.5,
+      "position": [
+        1100,
+        100
+      ],
+      "id": "0ca491a1-f021-4d45-ad12-f66e51c856a5",
+      "name": "Google Sheets",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "GqmTEttK8rthYyMp",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "url": "=https://www.virustotal.com/api/v3/ip_addresses/45.153.160.140",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "x-apikey",
+              "value": "4a9015095ca4be5411cb4787acddf1483d5bf3c5fbf3f9ed99652003541ab20f"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        220,
+        100
+      ],
+      "id": "e0b092af-c7be-479e-86c4-99fd454a81fc",
+      "name": "HTTP Request"
+    },
+    {
+      "parameters": {
+        "jsCode": "const vtData = $json || {};\nconst vtAttributes = vtData[\"attributes\"] || {};\nconst vtStats = vtAttributes[\"last_analysis_stats\"] || {};\n\nreturn [{\n  json: {\n    ip: vtData.id || \"N/A\",\n    timestamp: vtData.timestamp || new Date().toISOString(),\n    original_Log: vtData.original_Log || \"N/A\",\n    malicious_score: 4,\n    country: vtAttributes.country || \"N/A\",\n    organization: vtAttributes.as_owner || \"N/A\"\n  }\n}];\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        660,
+        0
+      ],
+      "id": "8a3dfb9b-b950-40f4-a805-322fc476a64b",
+      "name": "Combine Data"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "ac67e9de-a432-4be5-87a0-0f98e4f1ff2f",
+              "name": "ip",
+              "value": "={{ $json.data.id }}",
+              "type": "string"
+            },
+            {
+              "id": "d02069bb-c954-438c-abea-81d23d8cd382",
+              "name": "country",
+              "value": "={{ $json.data.attributes.country }}",
+              "type": "string"
+            },
+            {
+              "id": "96624517-084e-4d92-ba1a-cb6522179bd4",
+              "name": "organization",
+              "value": "={{ $json.data.attributes.as_owner }}",
+              "type": "string"
+            },
+            {
+              "id": "12bd29b5-1784-43c7-a901-318548fcd393",
+              "name": "malicious_score",
+              "value": "={{ $json.data.attributes.last_analysis_stats.malicious }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        440,
+        100
+      ],
+      "id": "36901493-5aea-431c-821c-ddbfea881682",
+      "name": "Edit Fields"
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForEachItem",
+        "jsCode": "return {\n  json: {\n   ip: item.json.ip || \"Unknown\",\ntimestamp: item.json.timestamp || new Date().toISOString(),\noriginal_Log: item.json.original_Log || \"No message provided\",\nmalicious_score: parseInt(item.json.malicious_score || \"0\"),\ncountry: item.json.country || \"Unlisted\",\norganization: item.json.organization || \"Unidentified\"\n\n  }\n};\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        880,
+        0
+      ],
+      "id": "971c7a24-fd77-432b-8737-5018cbf6e9fa",
+      "name": "Combine IP + VT Info"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "loose",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "37c714a4-fe23-4175-a124-74fbcde8e891",
+              "leftValue": "= {{ $json.malicious_score }}",
+              "rightValue": 0,
+              "operator": {
+                "type": "number",
+                "operation": "gt"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "looseTypeValidation": true,
+        "options": {}
+      },
+      "type": "n8n-nodes-base.filter",
+      "typeVersion": 2.2,
+      "position": [
+        1100,
+        -100
+      ],
+      "id": "d0ddf2ac-45b7-4b2c-bdde-f09a0b48704e",
+      "name": "Filter"
+    },
+    {
+      "parameters": {
+        "select": "channel",
+        "channelId": {
+          "__rl": true,
+          "value": "C08SNLPJCE4",
+          "mode": "list",
+          "cachedResultName": "alerts"
+        },
+        "text": "=🚨 Malicious IP Detected!\nIP: {{$json.ip}}\nScore: {{$json.malicious_score}}\nCountry: {{$json.country}}\nOrg: {{$json.organization}}\nLog: {{$json.original_Log}}",
+        "otherOptions": {}
+      },
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2.3,
+      "position": [
+        1320,
+        -100
+      ],
+      "id": "5aab9fcd-dc5a-4e90-9647-55f62cc6c101",
+      "name": "Slack",
+      "webhookId": "45c5d3bb-bc18-48d7-a90e-6b04fa0a17cd",
+      "credentials": {
+        "slackApi": {
+          "id": "DpJknRcvppz4a9x8",
+          "name": "Slack account"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "Extract IP",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "HTTP Request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extract IP": {
+      "main": [
+        [
+          {
+            "node": "Combine Data",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Combine Data": {
+      "main": [
+        [
+          {
+            "node": "Combine IP + VT Info",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields": {
+      "main": [
+        [
+          {
+            "node": "Combine Data",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Combine IP + VT Info": {
+      "main": [
+        [
+          {
+            "node": "Google Sheets",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Filter",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Filter": {
+      "main": [
+        [
+          {
+            "node": "Slack",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "b6262af0-9f58-4f94-bcf8-5a6ecfeaeda9",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "bf91e3c5c6cd68f17ac6fed6b549e8d5312a8f37282847612c0e976748c28e85"
+  },
+  "id": "c90lWkFfM6LU5ub9",
+  "tags": []
+}
