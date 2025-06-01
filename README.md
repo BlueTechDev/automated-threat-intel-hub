@@ -7,7 +7,7 @@ A no-code/low-code threat detection pipeline built using [n8n](https://n8n.io), 
 ## 📊 Live Demo
 
 **🔗 Threat Dashboard (Google Sheets - View Only)**  
-[https://docs.google.com/spreadsheets/d/1hlN1f3yuDyc5j7VDzsQImhwNjSc_kqs-QU-OAMdnXEw/edit?usp=sharing](https://docs.google.com/spreadsheets/d/1hlN1f3yuDyc5j7VDzsQImhwNjSc_kqs-QU-OAMdnXEw/edit?usp=sharing))
+[https://docs.google.com/spreadsheets/d/1hlN1f3yuDyc5j7VDzsQImhwNjSc_kqs-QU-OAMdnXEw/edit?usp=sharing]([https://docs.google.com/spreadsheets/d/1hlN1f3yuDyc5j7VDzsQImhwNjSc_kqs-QU-OAMdnXEw/edit?usp=sharing](https://docs.google.com/spreadsheets/d/1hlN1f3yuDyc5j7VDzsQImhwNjSc_kqs-QU-OAMdnXEw/edit?usp=sharing)
 
 ---
 
