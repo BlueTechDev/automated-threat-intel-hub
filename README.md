@@ -38,7 +38,7 @@ A no-code/low-code threat detection pipeline built using [n8n](https://n8n.io), 
 
 | n8n Workflow Overview | Google Sheets Threat Log |
 |------------------------|--------------------------|
-| ![n8n workflow](./screenshots/n8n-workflow.png) | ![Threat log](./screenshots/google-sheet.png) |
+| ![n8n workflow](https://github.com/BlueTechDev/automated-threat-intel-hub/wiki) | ![Threat log](./screenshots/google-sheet.png) |
 
 ---
 
